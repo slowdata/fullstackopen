@@ -1,0 +1,15 @@
+note over browser:
+browser executes the event handler
+for Form submit.
+Starts with stopping default form behaviour
+creates new note
+adds note to browser list (ul with new li)
+makes POST reqest with new note
+end note
+browser->server: HTTP POST https://fullstack-exampleapp.herokuapp.com/new_note_spa
+server-->browser: HTTP 201 Created - (also in json receives object with message: note created)
+note over browser:
+Logs response message
+to console when response is over
+and ok.
+end note

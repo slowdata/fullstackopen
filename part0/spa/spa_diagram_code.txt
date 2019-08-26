@@ -1,0 +1,26 @@
+browser->server: HTTP GET https://fullstack-exampleapp.herokuapp.com/spa
+server-->browser: HTML-code (page document)
+note over browser:
+browser finds stylesheet link file
+in HTML and request the file
+end note
+browser->server: HTTP GET https://fullstack-exampleapp.herokuapp.com/main.css
+server-->browser: main.css
+note over browser:
+browser finds script file
+in HTML and request the file
+end note
+browser->server: HTTP GET https://fullstack-exampleapp.herokuapp.com/spa.js
+server-->browser: spa.js
+note over browser:
+browser starts executing js-code
+and in one momment requests
+JSON data from server 
+end note
+browser->server: HTTP GET https://fullstack-exampleapp.herokuapp.com/data.json
+server-->browser: [{ content: "HTML is easy", date: "2019-05-23" }, ...]
+note over browser:
+browser executes the event handler
+that renders notes to display
+after ajax request end and status 200
+end note
