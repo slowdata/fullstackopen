@@ -4,7 +4,7 @@ import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 
-import Axios from "axios";
+import personServices from "./services/persons";
 
 const Header = ({ title }) => <h2>{title}</h2>;
 
@@ -16,9 +16,9 @@ const App = () => {
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    Axios.get("http://localhost:3001/persons").then(response => {
-      setFPersons(response.data);
-      setPersons(response.data);
+    personServices.getAll().then(persons => {
+      setFPersons(persons);
+      setPersons(persons);
     });
   }, []);
 
@@ -35,12 +35,23 @@ const App = () => {
       name: newName,
       number: newNumber
     };
-
     if (!nameExists(person.name)) {
-      setFPersons(fPersons.concat(person));
-      setPersons(persons.concat(person));
+      personServices.createPerson(person).then(returnPerson => {
+        setFPersons(fPersons.concat(returnPerson));
+        setPersons(persons.concat(returnPerson));
+      });
     } else {
-      alert(`${person.name} is already added to phonebook`);
+      const result = window.confirm(
+        `${person.name} is already added to phonebook, replace the old number with a new one?`
+      );
+      if (result) {
+        const id = nameExists(person.name).id;
+        personServices.updatePerson(id, person).then(returnPerson => {
+          const newPersons = persons.map(p => (p.id !== id ? p : returnPerson));
+          setFPersons(newPersons);
+          setPersons(newPersons);
+        });
+      }
     }
     setNewName("");
     setNewNumber("");
@@ -54,6 +65,18 @@ const App = () => {
       person.name.toLowerCase().includes(e.target.value.toLowerCase())
     );
     setFPersons(filterPersons);
+  };
+
+  const handleDelete = person => {
+    const result = window.confirm(`Delete ${person.name}`);
+    if (result) {
+      personServices.deletePerson(person.id).then(status => {
+        if (status === 200) {
+          setPersons(persons.filter(p => p.id !== person.id));
+          setFPersons(persons.filter(p => p.id !== person.id));
+        }
+      });
+    }
   };
 
   return (
@@ -73,7 +96,7 @@ const App = () => {
 
       <Header title="Numbers" />
 
-      <Persons persons={fPersons} />
+      <Persons persons={fPersons} deletePerson={handleDelete} />
     </div>
   );
 };
