@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import Notification from "./components/Notification";
 
 import personServices from "./services/persons";
 
@@ -14,6 +15,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [fPersons, setFPersons] = useState([]);
   const [filter, setFilter] = useState("");
+  const [message, setMessage] = useState({});
 
   useEffect(() => {
     personServices.getAll().then(persons => {
@@ -37,6 +39,10 @@ const App = () => {
     };
     if (!nameExists(person.name)) {
       personServices.createPerson(person).then(returnPerson => {
+        setMessage({ text: `Added ${person.name}`, type: "success" });
+        setTimeout(() => {
+          setMessage({});
+        }, 5000);
         setFPersons(fPersons.concat(returnPerson));
         setPersons(persons.concat(returnPerson));
       });
@@ -46,11 +52,24 @@ const App = () => {
       );
       if (result) {
         const id = nameExists(person.name).id;
-        personServices.updatePerson(id, person).then(returnPerson => {
-          const newPersons = persons.map(p => (p.id !== id ? p : returnPerson));
-          setFPersons(newPersons);
-          setPersons(newPersons);
-        });
+        personServices
+          .updatePerson(id, person)
+          .then(returnPerson => {
+            const newPersons = persons.map(p =>
+              p.id !== id ? p : returnPerson
+            );
+            setFPersons(newPersons);
+            setPersons(newPersons);
+          })
+          .catch(error => {
+            setMessage({
+              text: `Information of ${person.name} has already been removed from server`,
+              type: "error"
+            });
+            const newPersons = persons.filter(p => id !== p.id);
+            setFPersons(newPersons);
+            setPersons(newPersons);
+          });
       }
     }
     setNewName("");
@@ -82,8 +101,8 @@ const App = () => {
   return (
     <div>
       <Header title="Phonebook" />
+      <Notification type={message.type}>{message.text}</Notification>
       <Filter filter={filter} onChange={handleFilter} />
-
       <Header title="add a new" />
 
       <PersonForm
