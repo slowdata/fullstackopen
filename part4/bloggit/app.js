@@ -11,7 +11,6 @@ const logger = require('./utils/log')
 
 const mongoUrl = config.MONGODB_URI;
 
-logger.info(mongoUrl)
 mongoose.set("useUnifiedTopology", true);
 mongoose
   .connect(mongoUrl, { useNewUrlParser: true })
