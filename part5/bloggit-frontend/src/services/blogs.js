@@ -25,7 +25,37 @@ const create = async (newBlog) => {
     try {
         const response = await axios.post(baseUrl, newBlog, config);
         return response.data;
-    } catch (error) {}
+    } catch (error) {
+        throw new Error("Error creating new Blog.");
+    }
 };
 
-export default { getAll, create, setToken };
+const update = async (newBlog) => {
+    const config = {
+        headers: { Authorization: token },
+    };
+    try {
+        const response = await axios.put(
+            `${baseUrl}/${newBlog.id}`,
+            newBlog,
+            config
+        );
+        return response.data;
+    } catch (error) {
+        throw new Error("Error updating new Blog.");
+    }
+};
+
+const deleteBlog = async (id) => {
+    const config = {
+        headers: { Authorization: token },
+    };
+    try {
+        const res = await axios.delete(`${baseUrl}/${id}`, config);
+        if (res.status !== 204) throw new Error("Blog not found.");
+    } catch (error) {
+        throw new Error("Error deleting blog.");
+    }
+};
+
+export default { getAll, create, update, deleteBlog, setToken };
